@@ -670,6 +670,26 @@ class PublicApiTest extends TestUtils {
     }
 
     @Test
+    def symbolicAppendBehavesStrangelyWithFallback() {
+        val loader = new TestMultiClassLoader(this.getClass().getClassLoader(), Map(
+            "application.conf" -> List(
+                resourceFile("list_append_symbolic_1.conf").toURI.toURL(),
+                resourceFile("list_append_symbolic_2.conf").toURI.toURL())))
+        val config = ConfigFactory.load(loader)
+        assertEquals(List(1, 2, 99, 100), config.getList("list").unwrapped.asScala)
+    }
+
+    @Test
+    def canWorkAroundAppendBevaviorWithFallbackByReversing() {
+        val loader = new TestMultiClassLoader(this.getClass().getClassLoader(), Map(
+            "application.conf" -> List(
+                resourceFile("list_append_reversed_1.conf").toURI.toURL(),
+                resourceFile("list_append_reversed_2.conf").toURI.toURL())))
+        val config = ConfigFactory.load(loader)
+        assertEquals(List(1, 2, 99, 100), config.getList("list").unwrapped.asScala)
+    }
+
+    @Test
     def usesSuppliedClassLoaderForReferenceConf() {
         val loaderA1 = new TestClassLoader(this.getClass().getClassLoader(),
             Map("reference.conf" -> resourceFile("a_1.conf").toURI.toURL()))

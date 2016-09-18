@@ -746,6 +746,20 @@ abstract trait TestUtils {
         }
     }
 
+    /** 
+     * Allows multiple resources per name, emulating finding multiple classe with the same name in the class path.
+     */
+    protected class TestMultiClassLoader(parent: ClassLoader, val additions: Map[String, List[URL]]) extends ClassLoader(parent) {
+        override def findResources(name: String) = {
+            import scala.collection.JavaConverters._
+            val other = super.findResources(name).asScala
+            additions.get(name).map({ urls => urls.toIterator ++ other }).getOrElse(other).asJavaEnumeration
+        }
+        override def findResource(name: String) = {
+            additions.get(name).flatMap(_.headOption).getOrElse(null)
+        }
+    }
+
     protected def withContextClassLoader[T](loader: ClassLoader)(body: => T): T = {
         val executor = Executors.newSingleThreadExecutor()
         val f = executor.submit(new Callable[T] {
