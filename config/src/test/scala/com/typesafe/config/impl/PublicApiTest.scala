@@ -691,6 +691,16 @@ class PublicApiTest extends TestUtils {
     }
 
     @Test
+    def symbolicAppendProducesExpectedOrderWithApplicationAndReferenceConf() {
+        val loader = new TestClassLoader(this.getClass().getClassLoader(), Map(
+            "application.conf" -> resourceFile("list_append_symbolic_1.conf").toURI.toURL(),
+            "reference.conf" -> resourceFile("list_append_symbolic_2.conf").toURI.toURL()))
+        val config = ConfigFactory.load(loader)
+        // This test fails, as the actual result is `99, 100, 1, 2`.
+        assertEquals(List(1, 2, 99, 100), config.getList("list").unwrapped.asScala)
+    }
+
+    @Test
     def usesSuppliedClassLoaderForReferenceConf() {
         val loaderA1 = new TestClassLoader(this.getClass().getClassLoader(),
             Map("reference.conf" -> resourceFile("a_1.conf").toURI.toURL()))
