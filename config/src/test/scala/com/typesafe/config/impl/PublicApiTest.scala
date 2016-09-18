@@ -676,6 +676,7 @@ class PublicApiTest extends TestUtils {
                 resourceFile("list_append_symbolic_1.conf").toURI.toURL(),
                 resourceFile("list_append_symbolic_2.conf").toURI.toURL())))
         val config = ConfigFactory.load(loader)
+        // This test fails, as the actual result is `99, 100, 1, 2`.
         assertEquals(List(1, 2, 99, 100), config.getList("list").unwrapped.asScala)
     }
 
